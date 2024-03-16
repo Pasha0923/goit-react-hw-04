@@ -1,5 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import requestImages from "./services/api";
+import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
+import Loader from "./components/Loader/Loader";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
+import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "./components/ImageModal/ImageModal";
+import SearchBar from "./components/SearchBar/SearchBar";
 import "./App.css";
 
 function App() {
@@ -9,21 +15,9 @@ function App() {
   const [isloading, setIsLoading] = useState(false); // Стан для відображення завантаження індикатору завантаження
   const [searchQuery, setSearchQuery] = useState(""); // Стан для зберігання поточного пошукового запиту
   const [isError, setIsError] = useState(false); //Стан для відображення помилки
+  const [selectedImage, setSelectedImage] = useState(null); // Стан для зберігання вибраного зображення для модального вікна
+  const [modalIsOpen, setModalIsOpen] = useState(false); // Стан для відображення/приховування модального вікна
 
-  const itemRef = useRef(null);
-  const heightRef = useRef(null);
-
-  const btnRef = useRef();
-
-  useEffect(() => {
-    if (itemRef.current) {
-      const height = itemRef.current.getBoundingClientRect().height;
-      heightRef.current = height;
-      console.log(heightRef.current);
-    }
-  });
-
-  useEffect(() => console.log(btnRef.current));
   useEffect(() => {
     if (searchQuery === null) return;
 
@@ -33,17 +27,11 @@ function App() {
         setIsLoading(true);
         setIsError(false);
         const data = await requestImages(searchQuery, page);
-        console.log(data.results);
-
-        if (data.total === 0) {
-          console.log("nothing found");
-        }
+        // console.log(data.results);
 
         if (data.total_pages > page) {
           setLoadingMore(true);
         }
-        console.log(data.total_pages);
-        console.log(data.total);
 
         setImages((prevState) => prevState.concat(data.results));
       } catch (err) {
@@ -53,23 +41,38 @@ function App() {
       }
     }
     fetchPicturesByQuery();
-  }, [searchQuery, page, heightRef]);
+  }, [searchQuery, page]);
+  // Функція приймає строку з пошуковим запитом і встановлюємо її в state
   const handleSearchQuery = (query) => {
     setSearchQuery(query);
     setPage(1);
-    setPictures([]);
+    setImages([]);
   };
   const handleLoadMore = () => {
     setPage((prevPage) => prevPage + 1);
   };
+  function openModal(image) {
+    setSelectedImage(image);
+    setModalIsOpen(true);
+  }
+
+  function closeModal() {
+    setModalIsOpen(false);
+  }
   return (
     <>
       <SearchBar onSubmit={handleSearchQuery} />
       {isError && <ErrorMessage />}
-      <ImageGallery ref={itemRef} images={images} />
+      <ImageGallery images={images} openModal={openModal} />
       {isloading && <Loader />}
-      {loadingMore && <LoadMoreBtn ref={btnRef} onLoadMore={handleLoadMore} />}
-      <ImageModal />
+      {loadingMore && <LoadMoreBtn loadMore={handleLoadMore} />}
+      {selectedImage && (
+        <ImageModal
+          modalIsOpen={modalIsOpen}
+          onClose={closeModal}
+          image={selectedImage}
+        />
+      )}
     </>
   );
 }
