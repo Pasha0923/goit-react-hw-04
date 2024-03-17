@@ -1,12 +1,14 @@
 import css from "./ImageCard.module.css";
-export default function ImageCard({ image, onClick }) {
+const ImageCard = ({ image, onClick }) => {
   return (
-    <div className={css.wrapper} onClick={onClick}>
+    <div className={css.wrapper}>
       <img
         className={css.image}
         src={image.urls.small}
         alt={image.description}
+        onClick={onClick}
       />
     </div>
   );
-}
+};
+export default ImageCard;

@@ -1,7 +1,7 @@
 import Modal from "react-modal";
 import css from "./ImageModal.module.css";
 Modal.setAppElement("#root");
-function ImageModal({ image, modalIsOpen, onClose }) {
+const ImageModal = ({ image, modalIsOpen, onClose }) => {
   return (
     <Modal
       className={css.modal}
@@ -28,5 +28,5 @@ function ImageModal({ image, modalIsOpen, onClose }) {
       </div>
     </Modal>
   );
-}
+};
 export default ImageModal;

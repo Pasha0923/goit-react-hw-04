@@ -11,6 +11,7 @@ const requestImages = async (query, page) => {
     }
   );
   console.log(data);
+  console.log(data.results);
   return data;
 };
 
